@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.geetham15.myapplication.dinesh">
+
+    <EditText
+        android:id="@+id/l_user"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="username"
+        android:inputType="textPersonName"
+        tools:layout_editor_absoluteX="73dp"
+        tools:layout_editor_absoluteY="113dp"
+        android:layout_marginBottom="68dp"
+        android:layout_above="@+id/l_pass"
+        android:layout_alignLeft="@+id/l_pass"
+        android:layout_alignStart="@+id/l_pass" />
+
+    <EditText
+        android:id="@+id/l_pass"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="password"
+        android:inputType="textPassword"
+        tools:layout_editor_absoluteX="71dp"
+        tools:layout_editor_absoluteY="205dp"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:id="@+id/btn2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/colorAccent"
+        android:text="Login"
+        tools:layout_editor_absoluteX="130dp"
+        tools:layout_editor_absoluteY="334dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="93dp" />
+
+    <CheckBox
+        android:id="@+id/c1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/l_pass"
+        android:layout_alignStart="@+id/l_pass"
+        android:layout_below="@+id/l_pass"
+        android:layout_marginTop="22dp"
+        android:text="Show Password" />
+</RelativeLayout>
