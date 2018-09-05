@@ -1,0 +1,459 @@
+<<<<<android Manifest>>>>>>
+
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.dd.list_sqlite_volley">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
+
+
+
+
+<<<<dependcies>>>>>>
+
+
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 26
+    defaultConfig {
+        applicationId "com.dd.list_sqlite_volley"
+        minSdkVersion 15
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+
+    implementation 'com.android.support:recyclerview-v7:26.1.0'
+    compile 'com.android.volley:volley:1.1.0'
+
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+}
+
+
+
+<<<<<<<main activity>>>>>>
+
+
+package com.dd.list_sqlite_volley;
+
+import android.database.Cursor;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.support.v7.widget.ThemedSpinnerAdapter;
+import android.view.View;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.dd.list_sqlite_volley.Sqlite.Helper;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class MainActivity extends AppCompatActivity {
+
+    private List<Mypojo> mypojos = new ArrayList<>();
+    private ListView listView;
+    ListAdapter listAdapter;
+    Helper helper;
+
+    ArrayList<String> name=new ArrayList<String>();
+    ArrayList<String> area=new ArrayList<String>();
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+
+
+        listView=(ListView)findViewById(R.id.list);
+
+        helper=new Helper(this);
+        volley();
+        loaddatasqlite();
+    }
+
+
+
+
+    public void volley(){
+
+
+
+        final ProgressBar progressBar = (ProgressBar)findViewById(R.id.progress);
+
+        progressBar.setVisibility(View.VISIBLE);
+
+
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, "http://legalnote.org//hotelrsbhavaan/indiangravy.php",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        progressBar.setVisibility(View.INVISIBLE);
+                        // Toast.makeText(getApplication(),""+response,Toast.LENGTH_SHORT).show();
+                        try {
+
+
+                            //converting the string to json array object
+                            JSONObject jsonObject=new JSONObject(response);
+
+
+
+                            //JSONArray array = new JSONArray(response);
+                            JSONArray jsonArray=jsonObject.getJSONArray("result");
+
+
+
+
+                            //traversing through all the object
+                            for (int i = 0; i < jsonArray.length(); i++) {
+
+                                //getting product object from json array
+                                JSONObject product = jsonArray.getJSONObject(i);
+
+                                helper.insert(
+                                        product.getString("title"),
+                                        product.getString("description")
+                                );
+
+                            }
+
+
+
+
+                            loaddatasqlite();
+
+                            Toast.makeText(getApplicationContext(),""+helper.numberOfRows(),Toast.LENGTH_SHORT).show();
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                });
+
+        //adding our stringrequest to queue
+        Volley.newRequestQueue(this).add(stringRequest);
+    }
+
+
+    private void loaddatasqlite() {
+
+        Cursor cursor=helper.display();
+        if (cursor.moveToFirst()) {
+            do {
+
+                name.add(cursor.getString(1));
+                area.add(cursor.getString(2));
+            } while (cursor.moveToNext());
+        }
+        listAdapter=new com.dd.list_sqlite_volley.ListAdapter(this,name,area);
+        listView.setAdapter(listAdapter);
+    }
+
+
+}
+
+
+
+<<<<Mypojo>>>>>
+
+
+
+package com.dd.list_sqlite_volley;
+
+/**
+ * Created by dd on 22/3/18.
+ */
+
+public class Mypojo {
+
+    private String name, area;
+
+
+    public Mypojo(String name, String area){
+
+        this.name=name;
+        this.area=area;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getArea() {
+        return area;
+    }
+
+    public void setArea(String area) {
+        this.area = area;
+    }
+}
+
+
+
+<<<<<<MyAdapter>>>>>>>
+
+
+package com.dd.list_sqlite_volley;
+
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import java.util.List;
+
+
+
+public class MyAdapter extends RecyclerView.Adapter<MyAdapter.DemoAdapter> {
+
+
+    private List<Mypojo> mypojos;
+
+    public class DemoAdapter extends RecyclerView.ViewHolder {
+        public TextView name, area;
+
+        public DemoAdapter(View view) {
+            super(view);
+            name = (TextView) view.findViewById(R.id.name);
+            area = (TextView) view.findViewById(R.id.area);
+
+        }
+    }
+
+
+    public MyAdapter(List<Mypojo> mypojos){
+
+        this.mypojos=mypojos;
+    }
+
+
+
+    @Override
+    public DemoAdapter onCreateViewHolder(ViewGroup parent, int viewType) {
+
+        View itemView = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.list, parent, false);
+
+        return new DemoAdapter(itemView);
+    }
+
+    @Override
+    public void onBindViewHolder(DemoAdapter holder, int position) {
+
+        Mypojo mypojo = mypojos.get(position);
+        holder.name.setText(mypojo.getName());
+        holder.area.setText(mypojo.getArea());
+
+    }
+
+
+
+    @Override
+    public int getItemCount() {
+        return mypojos.size();
+    }
+}
+
+
+<<<<<<List Adapter >>>>>>>
+
+
+
+package com.dd.list_sqlite_volley;
+
+import android.app.Activity;
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.TextView;
+
+import java.util.ArrayList;
+
+/**
+ * Created by dd on 22/3/18.
+ */
+
+public class ListAdapter extends BaseAdapter {
+
+    Activity activity;
+
+
+    ArrayList<String> namelist;
+    ArrayList<String> arealist;
+
+    private LayoutInflater inflater;
+
+    public TextView name, area;
+
+
+
+    public ListAdapter(Activity activity,ArrayList<String> namelist,ArrayList<String> arealist){
+
+        this.activity=activity;
+        this.namelist=namelist;
+        this.arealist=arealist;
+        // this.mypojos=mypojos;
+    }
+    @Override
+    public int getCount() {
+        return namelist.size();
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return namelist.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+
+        if (inflater == null)
+            inflater = (LayoutInflater) activity
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        if (convertView == null)
+            convertView = inflater.inflate(R.layout.list, null);
+
+        name = (TextView) convertView.findViewById(R.id.name);
+        area = (TextView) convertView.findViewById(R.id.area);
+
+
+        name.setText(namelist.get(position));
+        area.setText(arealist.get(position));
+
+
+
+
+        return convertView;
+    }
+}
+
+
+<<<<<<Sqlite/Helper>>>>>>
+
+
+package com.dd.list_sqlite_volley.Sqlite;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.DatabaseUtils;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+
+
+public class Helper extends SQLiteOpenHelper {
+
+    public Helper(Context context) {
+        super(context, "DB.db", null, 1);
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+
+        db.execSQL( "create table datas " +
+                "(id integer primary key AUTOINCREMENT, name text,area text)"
+        );
+
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
+        db.execSQL("DROP TABLE IF EXISTS datas");
+        onCreate(db);
+
+    }
+
+    public void insert(String name,String area){
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("name", name);
+        contentValues.put("area", area);
+        db.insert("datas", null, contentValues);
+
+
+    }
+
+    public int numberOfRows(){
+        SQLiteDatabase db = this.getReadableDatabase();
+        int numRows = (int) DatabaseUtils.queryNumEntries(db, "datas");
+        return numRows;
+    }
+
+
+    public Cursor display(){
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor;
+        cursor=db.rawQuery(("SELECT * FROM datas"), null);
+        return cursor;
+    }
+
+}
