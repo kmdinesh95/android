@@ -1,0 +1,406 @@
+
+<<<<<<<<MainActivity
+
+
+package com.dd.myapplication;
+
+import android.graphics.Movie;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class MainActivity extends AppCompatActivity {
+
+    private List<getset> movieList = new ArrayList<>();
+    private RecyclerView recyclerView;
+    private MoviesAdapter mAdapter;
+    private TextView mTextMessage;
+
+    private static final String JSON_URL = "http://legalnote.org/forouruse/hhh/demo.php" ;
+
+
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.navigation_home:
+                    mTextMessage.setText(R.string.title_home);
+                    return true;
+                case R.id.navigation_dashboard:
+                    mTextMessage.setText(R.string.title_dashboard);
+                    return true;
+                case R.id.navigation_notifications:
+                    mTextMessage.setText(R.string.title_notifications);
+                    return true;
+            }
+            return false;
+        }
+    };
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        mTextMessage = (TextView) findViewById(R.id.message);
+        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+
+        mAdapter = new MoviesAdapter(movieList);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setAdapter(mAdapter);
+        volley();
+    }
+    private void volley() {
+        //getting the progressbar
+        final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
+
+        //making the progressbar visible
+        progressBar.setVisibility(View.VISIBLE);
+
+        //creating a string request to send request to the url
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, JSON_URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        //hiding the progressbar after completion
+                        progressBar.setVisibility(View.INVISIBLE);
+
+
+                        try {
+
+
+                            //getting the whole json object from the response
+                            JSONObject obj = new JSONObject(response);
+
+
+
+
+                            //we have the array named hero inside the object
+                            //so here we are getting that json array
+                            JSONArray array = obj.getJSONArray("abc");
+
+
+
+                            //now looping through all the elements of the json array
+                            for (int i = 0; i < array.length(); i++) {
+
+
+
+                                //getting the json object of the particular index inside the array
+                                JSONObject obj1 = array.getJSONObject(i);
+
+                                String aa= obj1.getString("name");
+                                String bb=obj1.getString("city");
+                                String cc =obj1.getString("trip");
+
+
+                                //creating a hero object and giving them the values from json object
+                                getset gs_obj = new getset(aa,bb,cc);
+
+                                //adding the hero to herolist
+                                movieList.add(gs_obj);
+
+
+                            }
+
+                            //creating custom adapter object
+                            MoviesAdapter adp = new MoviesAdapter (movieList);
+
+                            //adding the adapter to listview
+                            recyclerView.setAdapter(adp);
+
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        //displaying the error in toast if occurrs
+                        Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        //creating a request queue
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+
+        //adding the string request to request queue
+        requestQueue.add(stringRequest);
+    }
+
+}
+
+<<<<<<< getter setter >>>>>>>
+
+package com.dd.myapplication;
+
+/**
+ * Created by dd on 15/3/18.
+ */
+
+public class getset {
+    private String title, genre, year;
+    public getset(){
+
+    }
+
+    public getset(String title, String genre, String year) {
+        this.title = title;
+        this.genre = genre;
+        this.year = year;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String name) {
+        this.title = name;
+    }
+
+    public String getYear() {
+        return year;
+    }
+
+    public void setYear(String year) {
+        this.year = year;
+    }
+
+    public String getGenre() {
+        return genre;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+}
+
+
+
+
+<<<<<<<MoviesAdapter>>>>>>>
+
+
+package com.dd.myapplication;
+
+/**
+ * Created by dd on 15/3/18.
+ */
+
+import android.content.Context;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import java.util.List;
+
+public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MyViewHolder> {
+
+    private List<getset> moviesList;
+    Context c;
+
+    public class MyViewHolder extends RecyclerView.ViewHolder {
+        public TextView title, year, genre;
+
+        public MyViewHolder(View view) {
+            super(view);
+            title = (TextView) view.findViewById(R.id.title);
+            genre = (TextView) view.findViewById(R.id.genre);
+            year = (TextView) view.findViewById(R.id.year);
+        }
+    }
+
+
+    public MoviesAdapter(List<getset> moviesList) {
+        this.moviesList = moviesList;
+    }
+
+    @Override
+    public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View itemView = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.movie_list_row, parent, false);
+
+        return new MyViewHolder(itemView);
+    }
+
+    @Override
+    public void onBindViewHolder(MyViewHolder holder, int position) {
+        getset gs = moviesList.get(position);
+        holder.title.setText(gs.getTitle());
+        holder.genre.setText(gs.getGenre());
+        holder.year.setText(gs.getYear());
+    }
+
+    @Override
+    public int getItemCount() {
+        return moviesList.size();
+    }
+}
+
+<<<<<<<activity main>>>>>>>
+
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.dd.myapplication.MainActivity">
+
+    <TextView
+        android:id="@+id/message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:text="@string/title_home"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical" />
+    <ProgressBar
+        android:visibility="gone"
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true" />
+
+    <android.support.design.widget.BottomNavigationView
+        android:id="@+id/navigation"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="0dp"
+        android:layout_marginStart="0dp"
+        android:background="?android:attr/windowBackground"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:menu="@menu/navigation" />
+
+</android.support.constraint.ConstraintLayout>
+
+
+<<<<<<< movies list >>>>>>>
+
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:focusable="true"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/row_padding_vertical"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/row_padding_vertical">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:textColor="@color/title"
+        android:textSize="16dp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/genre"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title" />
+
+    <TextView
+        android:id="@+id/year"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:textColor="@color/year" />
+
+</RelativeLayout>
+
+
+
+
+<<<<<<<<app.build.gradle>>>>>>>
+
+
+
+
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 26
+    defaultConfig {
+        applicationId "com.dd.myapplication"
+        minSdkVersion 15
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary= true
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support:design:26.1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation 'com.android.support:support-vector-drawable:26.1.0'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+
+    implementation 'com.android.support:recyclerview-v7:26.1.0'
+    compile 'com.android.volley:volley:1.0.0'
+
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+}
